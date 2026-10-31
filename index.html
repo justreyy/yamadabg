@@ -490,7 +490,7 @@ async function run(it) {
     const body = await shrink(it.file);
     const r = await fetch('/api/remove', { method: 'POST', headers: { 'Content-Type': 'image/jpeg', 'X-Quality': S.quality }, body });
     if (!r.ok) {
-      let m = 'Gagal memproses'; try { m = (await r.json()).error || m; } catch (_) {}
+      let m = 'Server error (kode ' + r.status + ')'; try { m = (await r.json()).error || m; } catch (_) {}
       throw new Error(m);
     }
     it.result = await r.blob();
@@ -499,7 +499,7 @@ async function run(it) {
     it.preview = r.headers.get('X-Used-Preview') === '1';
     it.status = 'done';
   } catch (e) {
-    it.status = 'error'; it.error = e.message || 'Gagal memproses';
+    it.status = 'error'; it.error = e instanceof TypeError ? 'Tidak bisa terhubung ke server' : (e.message || 'Gagal memproses');
   }
   running--; render(); pump();
 }
