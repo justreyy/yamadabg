@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YamadaBG - Hapus Background Foto Otomatis</title>
+<meta name="description" content="YamadaBG: hapus background foto otomatis, cepat, dan gratis. Dibuat oleh JustReyy dari YamadaTeam.">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563eb'/%3E%3Cpath d='M20 18l12 16 12-16M32 34v14' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#2563eb; --blue-d:#1d4ed8; --blue-l:#dbe7ff; --sky:#eef4ff; --ink:#0f2147; --muted:#5b6b8c;
+  --line:#dfe8fb; --white:#fff; --ok:#16a34a; --err:#dc2626; --radius:22px;
+  --shadow:0 18px 50px -18px rgba(37,99,235,.35);
+  --ck1:#fff; --ck2:#e6edfb;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(700px 420px at 85% -5%,rgba(37,99,235,.14),transparent 60%),
+  radial-gradient(600px 380px at -5% 30%,rgba(96,165,250,.16),transparent 60%),#fff}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:2px;border-radius:10px}
+.wrap{width:min(1080px,100% - 32px);margin-inline:auto}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:66px;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
+.logo .mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:grid;place-items:center;box-shadow:0 8px 18px -6px rgba(37,99,235,.6)}
+.logo b{color:var(--blue)}
+.nav{display:flex;align-items:center;gap:6px}
+.nav a{padding:8px 14px;border-radius:999px;color:var(--muted);font-weight:600;font-size:.95rem;text-decoration:none}
+.nav a:hover{background:var(--sky);color:var(--blue)}
+.icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line);background:#fff;color:var(--blue);transition:.2s}
+.icon-btn:hover{background:var(--sky);transform:rotate(30deg)}
+@media(max-width:560px){.nav a{display:none}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 26px;border-radius:999px;font-weight:700;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 14px 30px -10px rgba(37,99,235,.7)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px -10px rgba(37,99,235,.8)}
+.btn-ghost{background:#fff;border:1.5px solid var(--blue-l);color:var(--blue)}
+.btn-ghost:hover{background:var(--sky)}
+.btn-big{padding:20px 44px;font-size:1.2rem}
+
+/* Views */
+main{flex:1}
+.view{display:none;animation:fade .45s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Hero */
+.hero{text-align:center;padding:64px 0 34px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--sky);color:var(--blue);padding:7px 14px;border-radius:999px;font-weight:700;font-size:.85rem;border:1px solid var(--blue-l)}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1.06;letter-spacing:-.035em;margin:18px auto 14px;max-width:16ch;font-weight:800}
+.hero h1 span{background:linear-gradient(135deg,#3b82f6,#1d4ed8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:1.1rem;max-width:52ch;margin:0 auto 30px;line-height:1.6}
+.cta{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cta small{color:var(--muted)}
+.pulse{position:relative}
+.pulse::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid var(--blue);animation:ring 2.2s infinite;pointer-events:none}
+@keyframes ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.28);opacity:0}}
+
+/* Compare */
+.compare-wrap{padding:26px 0 10px}
+.compare{position:relative;margin:0 auto;width:min(720px,100%);aspect-ratio:4/3;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);border:6px solid #fff;outline:1px solid var(--line);touch-action:pan-y;user-select:none;cursor:ew-resize;background:#fff}
+.layer{position:absolute;inset:0}
+.layer svg{width:100%;height:100%;display:block}
+.checker,.thumb.checker{background-color:var(--ck1);background-image:linear-gradient(45deg,var(--ck2) 25%,transparent 25%,transparent 75%,var(--ck2) 75%),linear-gradient(45deg,var(--ck2) 25%,transparent 25%,transparent 75%,var(--ck2) 75%);background-size:22px 22px;background-position:0 0,11px 11px}
+.layer.before{clip-path:inset(0 calc(100% - var(--p,50%)) 0 0)}
+.handle{position:absolute;top:0;bottom:0;left:var(--p,50%);width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 0 1px rgba(37,99,235,.25),0 0 18px rgba(37,99,235,.5)}
+.handle i{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;box-shadow:0 8px 20px -4px rgba(37,99,235,.8);border:3px solid #fff}
+.tag{position:absolute;top:14px;padding:6px 14px;border-radius:999px;font-weight:700;font-size:.8rem;background:rgba(15,33,71,.78);color:#fff;backdrop-filter:blur(6px)}
+.tag.b{left:14px}.tag.a{right:14px;background:var(--blue)}
+.cap{text-align:center;color:var(--muted);font-size:.9rem;margin-top:14px}
+
+/* Sections */
+section.block{padding:64px 0 8px}
+.sec-head{text-align:center;margin-bottom:34px}
+.sec-head h2{font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-.03em;font-weight:800}
+.sec-head p{color:var(--muted);margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 10px 30px -22px rgba(37,99,235,.5)}
+.step .num{width:42px;height:42px;border-radius:14px;background:var(--sky);color:var(--blue);display:grid;place-items:center;font-weight:800;margin-bottom:14px;border:1px solid var(--blue-l)}
+.step h3{font-size:1.1rem;margin-bottom:6px}
+.step p{color:var(--muted);line-height:1.55;font-size:.96rem}
+.example{margin-top:22px;display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;background:linear-gradient(135deg,var(--sky),#fff);border:1px solid var(--line);border-radius:28px;padding:22px}
+@media(max-width:700px){.example{grid-template-columns:1fr}.example .arrow{transform:rotate(90deg);justify-self:center}}
+.example figure{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/3;border:1px solid var(--line);background:#fff}
+.example figcaption{position:absolute;left:10px;bottom:10px;background:rgba(15,33,71,.78);color:#fff;font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:999px}
+.example figure svg{width:100%;height:100%;display:block}
+.arrow{color:var(--blue)}
+.example-cta{grid-column:1/-1;text-align:center}
+@media(min-width:701px){.example-cta{margin-top:4px}}
+.tips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+.tips span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;color:var(--muted);font-size:.88rem;font-weight:600}
+
+/* Upload view */
+.up{padding:44px 0 60px}
+.crumbs{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:26px;font-weight:700;font-size:.9rem;color:var(--muted);flex-wrap:wrap}
+.crumbs .dot{display:flex;align-items:center;gap:8px}
+.crumbs .dot i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:.8rem;background:var(--sky);color:var(--blue);border:1px solid var(--blue-l)}
+.crumbs .dot.on{color:var(--blue)}
+.crumbs .dot.on i{background:var(--blue);color:#fff;border-color:var(--blue)}
+.crumbs .line{width:34px;height:2px;background:var(--blue-l);border-radius:2px}
+.up h2{text-align:center;font-size:clamp(1.6rem,4vw,2.2rem);letter-spacing:-.03em;font-weight:800}
+.up .sub{text-align:center;color:var(--muted);margin:8px 0 28px}
+.drop{border:2.5px dashed #9db9f5;background:linear-gradient(180deg,#f6f9ff,#fff);border-radius:30px;padding:56px 20px;text-align:center;transition:.2s;max-width:760px;margin:0 auto}
+.drop.over{background:var(--sky);border-color:var(--blue);transform:scale(1.01)}
+.drop .ic{width:84px;height:84px;margin:0 auto 18px;border-radius:26px;background:var(--sky);display:grid;place-items:center;color:var(--blue);border:1px solid var(--blue-l)}
+.drop p{color:var(--muted);margin-top:16px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:6px}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;padding:10px;box-shadow:0 10px 26px -22px rgba(37,99,235,.7);animation:fade .35s ease}
+.thumb{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;display:grid;place-items:center;background-color:var(--ck1)}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.thumb.solid{background-image:none}
+.card.queue .thumb img,.card.processing .thumb img{filter:saturate(.7) brightness(.95)}
+.ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.55);backdrop-filter:blur(1.5px)}
+.spin{width:38px;height:38px;border-radius:50%;border:4px solid var(--blue-l);border-top-color:var(--blue);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.x{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(15,33,71,.75);color:#fff;display:grid;place-items:center;font-size:1.1rem;line-height:1;z-index:2}
+.x:hover{background:var(--err)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 4px 4px}
+.name{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.state{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.state.queue,.state.processing{background:var(--sky);color:var(--blue)}
+.state.done{background:#dcfce7;color:var(--ok)}
+.state.error{background:#fee2e2;color:var(--err)}
+.act{display:flex;gap:8px;padding:6px 4px 4px}
+.act button{flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:.88rem;background:var(--sky);color:var(--blue);transition:.15s}
+.act button:hover{background:var(--blue);color:#fff}
+.errtxt{color:var(--err);font-size:.8rem;padding:2px 4px 0}
+.badge{position:absolute;left:8px;bottom:8px;background:rgba(15,33,71,.78);color:#fff;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:999px}
+.add{display:grid;place-items:center;min-height:250px;border:2.5px dashed #9db9f5;border-radius:22px;background:linear-gradient(180deg,#f6f9ff,#fff);color:var(--blue);transition:.2s;text-align:center;padding:10px}
+.add:hover{background:var(--sky);transform:translateY(-3px)}
+.add .plus{width:62px;height:62px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:2rem;font-weight:300;margin:0 auto 10px;box-shadow:0 12px 24px -8px rgba(37,99,235,.7)}
+.add span{font-weight:700}
+.status{margin:28px auto 0;max-width:760px;border-radius:26px;padding:22px 26px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
+.status.done{background:linear-gradient(135deg,#eff6ff,#fff);border-color:var(--blue-l);text-align:center}
+.status h3{font-size:1.5rem;letter-spacing:-.02em;display:flex;align-items:center;justify-content:center;gap:10px}
+.status h3 .ok{width:34px;height:34px;border-radius:50%;background:var(--ok);display:inline-grid;place-items:center;color:#fff}
+.status p{color:var(--muted);margin:6px 0 16px}
+.status .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.prog{height:12px;background:var(--sky);border-radius:999px;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#2563eb);border-radius:inherit;transition:width .4s}
+.proc{display:flex;justify-content:space-between;font-weight:700}
+.proc span:last-child{color:var(--blue)}
+.back{display:block;margin:22px auto 0;color:var(--muted);font-weight:600;font-size:.92rem}
+.back:hover{color:var(--blue)}
+
+/* Footer */
+footer{margin-top:70px;border-top:1px solid var(--line);background:linear-gradient(180deg,#fff,var(--sky))}
+footer .in{padding:30px 0;text-align:center;color:var(--muted);font-size:.95rem;line-height:1.7}
+footer strong{color:var(--ink)}
+footer em{font-style:normal;color:var(--blue);font-weight:700}
+
+/* Settings */
+dialog{border:0;border-radius:28px;padding:0;width:min(440px,calc(100% - 28px));box-shadow:0 40px 90px -20px rgba(15,33,71,.5);color:var(--ink);font-family:inherit}
+dialog::backdrop{background:rgba(15,33,71,.45);backdrop-filter:blur(3px)}
+.dh{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line)}
+.dh h3{font-size:1.2rem}
+.db{padding:20px 24px;display:grid;gap:22px}
+.field label.t{display:block;font-weight:700;margin-bottom:4px}
+.field small{display:block;color:var(--muted);margin-bottom:10px;font-size:.84rem;line-height:1.45}
+.seg{display:grid;grid-auto-flow:column;gap:6px;background:var(--sky);padding:5px;border-radius:14px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{text-align:center;padding:10px 8px;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;color:var(--muted);transition:.15s}
+.seg input:checked+label{background:#fff;color:var(--blue);box-shadow:0 4px 12px -4px rgba(37,99,235,.4)}
+.seg input:focus-visible+label{outline:3px solid rgba(37,99,235,.45)}
+.sw{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw input{position:absolute;opacity:0;pointer-events:none}
+.sw label{width:42px;height:42px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;display:grid;place-items:center;transition:.15s}
+.sw input:checked+label{box-shadow:0 0 0 3px var(--blue)}
+.sw input:focus-visible+label{outline:3px solid rgba(37,99,235,.45);outline-offset:3px}
+.sw .tr{background-color:#fff;background-image:linear-gradient(45deg,#d6e0f7 25%,transparent 25%,transparent 75%,#d6e0f7 75%),linear-gradient(45deg,#d6e0f7 25%,transparent 25%,transparent 75%,#d6e0f7 75%);background-size:12px 12px;background-position:0 0,6px 6px}
+.sw input[type=color]{position:static;opacity:1;pointer-events:auto;width:42px;height:42px;padding:0;border:0;background:none;border-radius:50%;cursor:pointer}
+.df{display:flex;gap:10px;padding:0 24px 22px}
+.df button{flex:1;padding:13px;border-radius:14px;font-weight:700}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:var(--ink);color:#fff;padding:13px 20px;border-radius:14px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:.3s;z-index:50;max-width:calc(100% - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#" data-go="home" style="text-decoration:none;color:inherit" aria-label="YamadaBG beranda">
+      <span class="mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l7 9 7-9M12 14v6"/></svg></span>
+      <span>Yamada<b>BG</b></span>
+    </a>
+    <div class="nav">
+      <a href="#cara" data-scroll="cara">Cara Pakai</a>
+      <a href="#contoh" data-scroll="contoh">Contoh</a>
+      <button class="icon-btn" id="openSet" aria-label="Pengaturan" title="Pengaturan">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ TAB 1: BERANDA ============ -->
+  <div class="view active" id="view-home">
+    <div class="wrap">
+      <div class="hero">
+        <span class="pill">✨ Gratis · Cepat · Otomatis</span>
+        <h1>Hapus background foto dalam <span>sekejap</span></h1>
+        <p>Upload foto, biarkan YamadaBG menghapus background-nya secara otomatis, lalu download hasilnya sebagai PNG transparan.</p>
+        <div class="cta">
+          <button class="btn btn-primary btn-big pulse" id="startBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/></svg>
+            Hapus Background
+          </button>
+          <small>Tidak perlu daftar. Bisa banyak foto sekaligus.</small>
+        </div>
+      </div>
+
+      <div class="compare-wrap">
+        <div class="compare" id="cmp" aria-label="Perbandingan foto sebelum dan sesudah background dihapus"></div>
+        <p class="cap">Geser garisnya untuk melihat perbedaan sebelum &amp; sesudah</p>
+      </div>
+    </div>
+
+    <section class="block" id="cara">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Cara menghapus background</h2>
+          <p>Cuma 3 langkah, nggak sampai semenit.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><h3>Tekan “Hapus Background”</h3><p>Klik tombol biru besar di halaman utama, kamu langsung dibawa ke tab upload foto.</p></div>
+          <div class="step"><div class="num">2</div><h3>Masukkan foto</h3><p>Pilih foto dari galeri atau komputer (bisa lebih dari satu). Mau nambah lagi? Tekan tombol <b>+</b>.</p></div>
+          <div class="step"><div class="num">3</div><h3>Tunggu lalu download</h3><p>Setelah muncul tulisan <b>Selesai</b>, tekan Download. Hasilnya PNG dengan background transparan.</p></div>
+        </div>
+
+        <div class="example" id="contoh">
+          <figure><div class="layer" id="exBefore"></div><figcaption>Foto contoh</figcaption></figure>
+          <div class="arrow"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+          <figure class="checker"><div class="layer" id="exAfter"></div><figcaption>Hasil</figcaption></figure>
+          <div class="example-cta"><button class="btn btn-ghost" id="sampleBtn">Coba pakai foto contoh ini</button></div>
+        </div>
+
+        <div class="tips">
+          <span>📷 JPG, PNG, WebP</span><span>🗂️ Banyak foto sekaligus</span><span>⬇️ Download satuan atau ZIP</span><span>🎨 Ganti warna latar di Pengaturan</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ TAB 2: UPLOAD ============ -->
+  <div class="view" id="view-upload">
+    <div class="wrap up">
+      <div class="crumbs">
+        <span class="dot"><i>1</i> Mulai</span><span class="line"></span>
+        <span class="dot on"><i>2</i> Upload foto</span><span class="line"></span>
+        <span class="dot" id="crumb3"><i>3</i> Selesai</span>
+      </div>
+      <h2>Masukkan fotomu</h2>
+      <p class="sub">Background akan dihapus otomatis begitu foto masuk.</p>
+
+      <div class="drop" id="drop">
+        <div class="ic"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="9" r="1.6"/><path d="M21 16l-5-5L5 21"/></svg></div>
+        <button class="btn btn-primary btn-big" id="pickBtn">Pilih Foto</button>
+        <p>atau tarik &amp; lepas foto ke sini · JPG, PNG, WebP</p>
+      </div>
+
+      <div class="grid" id="grid" hidden></div>
+      <div id="statusbar"></div>
+      <button class="back" data-go="home">← Kembali ke beranda</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap in">
+    <div><strong>YamadaBG</strong> · Hapus background foto otomatis</div>
+    <div>Dibuat oleh <em>JustReyy</em> dari <em>YamadaTeam</em></div>
+  </div>
+</footer>
+
+<input type="file" id="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+
+<!-- Pengaturan -->
+<dialog id="setDlg">
+  <div class="dh"><h3>Pengaturan</h3><button class="icon-btn" id="closeSet" aria-label="Tutup" style="width:38px;height:38px">✕</button></div>
+  <div class="db">
+    <div class="field">
+      <label class="t">Kualitas hasil</label>
+      <small>“Penuh” memakai kredit remove.bg (hasil resolusi tinggi). “Hemat” gratis tapi resolusi kecil. Jika kredit habis, otomatis pindah ke Hemat.</small>
+      <div class="seg" id="segQ">
+        <input type="radio" name="q" id="q1" value="auto"><label for="q1">Penuh</label>
+        <input type="radio" name="q" id="q2" value="preview"><label for="q2">Hemat</label>
+      </div>
+    </div>
+    <div class="field">
+      <label class="t">Warna latar hasil</label>
+      <small>Pilih “transparan” untuk PNG tanpa background, atau beri warna latar baru saat download.</small>
+      <div class="sw" id="sw">
+        <input type="radio" name="bg" id="bg0" value="transparent"><label class="tr" for="bg0" title="Transparan"></label>
+        <input type="radio" name="bg" id="bg1" value="#ffffff"><label for="bg1" title="Putih" style="background:#fff"></label>
+        <input type="radio" name="bg" id="bg2" value="#2563eb"><label for="bg2" title="Biru" style="background:#2563eb"></label>
+        <input type="radio" name="bg" id="bg3" value="#0f2147"><label for="bg3" title="Biru tua" style="background:#0f2147"></label>
+        <input type="radio" name="bg" id="bg4" value="#000000"><label for="bg4" title="Hitam" style="background:#000"></label>
+        <input type="color" id="customBg" value="#ff8a00" title="Warna sendiri" aria-label="Warna sendiri">
+      </div>
+    </div>
+  </div>
+  <div class="df">
+    <button class="btn-ghost" id="resetSet" style="border:1.5px solid var(--blue-l);color:var(--blue);background:#fff">Reset</button>
+    <button class="btn-primary" id="saveSet" style="background:var(--blue);color:#fff">Selesai</button>
+  </div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- Pengaturan ---------- */
+const DEFAULTS = { quality: 'auto', bg: 'transparent' };
+let S = { ...DEFAULTS };
+try { S = { ...DEFAULTS, ...JSON.parse(localStorage.getItem('yamadabg') || '{}') }; } catch (_) {}
+const saveS = () => { try { localStorage.setItem('yamadabg', JSON.stringify(S)); } catch (_) {} };
+
+/* ---------- Toast ---------- */
+let tt;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ---------- Ilustrasi contoh (SVG) ---------- */
+function scene(withBg) {
+  const bg = withBg ? `
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#ffe0b5"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#sky)"/>
+    <circle cx="326" cy="68" r="34" fill="#fff3b0"/>
+    <ellipse cx="86" cy="72" rx="46" ry="16" fill="#fff" opacity=".92"/><ellipse cx="118" cy="62" rx="30" ry="14" fill="#fff" opacity=".92"/>
+    <path d="M0 232Q80 170 160 226T330 214T400 232V300H0Z" fill="#4cae7a"/>
+    <path d="M0 262Q120 222 240 264T400 252V300H0Z" fill="#2f8f5f"/>
+    <circle cx="48" cy="236" r="6" fill="#ff7aa8"/><circle cx="352" cy="258" r="6" fill="#ffd54a"/>` : '';
+  return `${bg}
+    <g>
+      <rect x="228" y="158" width="46" height="86" rx="16" fill="#ff9f43"/>
+      <rect x="164" y="244" width="30" height="34" rx="10" fill="#1b3a8a"/><rect x="206" y="244" width="30" height="34" rx="10" fill="#1b3a8a"/>
+      <rect x="152" y="270" width="46" height="14" rx="7" fill="#0f2147"/><rect x="202" y="270" width="46" height="14" rx="7" fill="#0f2147"/>
+      <rect x="146" y="150" width="108" height="110" rx="42" fill="#2563eb"/>
+      <rect x="120" y="164" width="34" height="68" rx="17" fill="#2563eb"/><rect x="246" y="164" width="34" height="68" rx="17" fill="#2563eb"/>
+      <circle cx="137" cy="238" r="13" fill="#ffd3a8"/><circle cx="263" cy="238" r="13" fill="#ffd3a8"/>
+      <rect x="170" y="140" width="60" height="22" rx="11" fill="#ffd54a"/>
+      <circle cx="200" cy="112" r="50" fill="#ffd3a8"/>
+      <path d="M148 104Q152 48 200 46T252 104Q226 82 200 84T148 104Z" fill="#1b3a8a"/>
+      <circle cx="182" cy="116" r="5.5" fill="#12306b"/><circle cx="218" cy="116" r="5.5" fill="#12306b"/>
+      <circle cx="172" cy="130" r="7" fill="#ff9aa2" opacity=".6"/><circle cx="228" cy="130" r="7" fill="#ff9aa2" opacity=".6"/>
+      <path d="M186 134Q200 148 214 134" stroke="#12306b" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>`;
+}
+const svgInline = (withBg, slice = true) =>
+  `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid ${slice ? 'slice' : 'meet'}" aria-hidden="true">${scene(withBg)}</svg>`;
+
+// Demo before/after
+const cmp = $('#cmp');
+cmp.innerHTML = `
+  <div class="layer checker">${svgInline(false)}</div>
+  <div class="layer before">${svgInline(true)}</div>
+  <div class="handle"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></i></div>
+  <span class="tag b">Before</span><span class="tag a">After</span>`;
+$('#exBefore').innerHTML = svgInline(true);
+$('#exAfter').innerHTML = svgInline(false);
+
+let manual = false, resumeT, t0 = performance.now();
+const setP = p => cmp.style.setProperty('--p', p + '%');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function loop(now) {
+  if (!manual && !reduce) {
+    const k = ((now - t0) / 4200) % 2;          // 0..2
+    const tri = k < 1 ? k : 2 - k;              // 0..1..0
+    const e = tri < .5 ? 2 * tri * tri : 1 - Math.pow(-2 * tri + 2, 2) / 2;
+    setP(6 + e * 88);
+  }
+  requestAnimationFrame(loop);
+}
+setP(50); requestAnimationFrame(loop);
+function dragTo(ev) {
+  const r = cmp.getBoundingClientRect();
+  setP(Math.max(2, Math.min(98, ((ev.clientX - r.left) / r.width) * 100)));
+}
+cmp.addEventListener('pointerdown', e => { manual = true; clearTimeout(resumeT); cmp.setPointerCapture(e.pointerId); dragTo(e); });
+cmp.addEventListener('pointermove', e => { if (cmp.hasPointerCapture(e.pointerId)) dragTo(e); });
+const release = () => { clearTimeout(resumeT); resumeT = setTimeout(() => { manual = false; t0 = performance.now() - 2100; }, 2500); };
+cmp.addEventListener('pointerup', release); cmp.addEventListener('pointercancel', release);
+
+/* ---------- Navigasi tab ---------- */
+function show(v, push = true) {
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  if (push) history.pushState(null, '', v === 'home' ? location.pathname : '#upload');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+addEventListener('popstate', () => show(location.hash === '#upload' ? 'upload' : 'home', false));
+if (location.hash === '#upload') show('upload', false);
+document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); show(el.dataset.go); }));
+document.querySelectorAll('[data-scroll]').forEach(el => el.addEventListener('click', e => {
+  e.preventDefault();
+  if (!$('#view-home').classList.contains('active')) show('home');
+  setTimeout(() => document.getElementById(el.dataset.scroll).scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}));
+$('#startBtn').addEventListener('click', () => show('upload'));
+
+/* ---------- Pengaturan UI ---------- */
+const dlg = $('#setDlg');
+function syncSettingsUI() {
+  document.querySelectorAll('input[name=q]').forEach(r => r.checked = r.value === S.quality);
+  let matched = false;
+  document.querySelectorAll('input[name=bg]').forEach(r => { r.checked = r.value === S.bg; if (r.checked) matched = true; });
+  if (!matched && /^#/.test(S.bg)) $('#customBg').value = S.bg;
+}
+$('#openSet').addEventListener('click', () => { syncSettingsUI(); dlg.showModal(); });
+$('#closeSet').addEventListener('click', () => dlg.close());
+$('#saveSet').addEventListener('click', () => dlg.close());
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+document.querySelectorAll('input[name=q]').forEach(r => r.addEventListener('change', () => { S.quality = r.value; saveS(); }));
+document.querySelectorAll('input[name=bg]').forEach(r => r.addEventListener('change', () => { S.bg = r.value; saveS(); render(); }));
+$('#customBg').addEventListener('input', e => {
+  S.bg = e.target.value; saveS();
+  document.querySelectorAll('input[name=bg]').forEach(r => r.checked = false);
+  render();
+});
+$('#resetSet').addEventListener('click', () => { S = { ...DEFAULTS }; saveS(); syncSettingsUI(); render(); toast('Pengaturan dikembalikan'); });
+
+/* ---------- Antrean foto ---------- */
+const items = [];
+let uid = 0, running = 0;
+const MAX_PARALLEL = 2, MAX_ITEMS = 30;
+const fileInput = $('#file');
+
+function addFiles(list) {
+  const files = [...list].filter(f => /^image\/(jpeg|png|webp)$/.test(f.type));
+  const skipped = list.length - files.length;
+  if (skipped > 0) toast(skipped + ' file dilewati (hanya JPG, PNG, WebP)');
+  for (const f of files) {
+    if (items.length >= MAX_ITEMS) { toast('Maksimal ' + MAX_ITEMS + ' foto sekali proses'); break; }
+    if (f.size > 25 * 1024 * 1024) { toast(f.name + ' lebih dari 25 MB'); continue; }
+    items.push({ id: ++uid, file: f, name: f.name, thumb: URL.createObjectURL(f), status: 'queue' });
+  }
+  render(); pump();
+}
+
+$('#pickBtn').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => { if (fileInput.files.length) addFiles(fileInput.files); fileInput.value = ''; });
+
+const drop = $('#drop');
+['dragenter', 'dragover'].forEach(ev => addEventListener(ev, e => { if (!$('#view-upload').classList.contains('active')) return; e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => addEventListener(ev, e => { if (ev === 'drop') e.preventDefault(); if (ev === 'dragleave' && e.relatedTarget) return; drop.classList.remove('over'); }));
+addEventListener('drop', e => { if ($('#view-upload').classList.contains('active') && e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+addEventListener('paste', e => {
+  if (!$('#view-upload').classList.contains('active')) return;
+  const fs = [...(e.clipboardData?.files || [])]; if (fs.length) addFiles(fs);
+});
+
+// Perkecil foto sebelum dikirim (batas body server ~4.5 MB)
+async function shrink(file) {
+  const bmp = await createImageBitmap(file);
+  const MAX = 2000, sc = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+  for (const q of [.92, .8, .65]) {
+    const b = await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+    if (b && b.size < 3.8 * 1024 * 1024) return b;
+  }
+  throw new Error('Foto terlalu besar');
+}
+
+async function run(it) {
+  running++; it.status = 'processing'; it.error = ''; render();
+  try {
+    const body = await shrink(it.file);
+    const r = await fetch('/api/remove', { method: 'POST', headers: { 'Content-Type': 'image/jpeg', 'X-Quality': S.quality }, body });
+    if (!r.ok) {
+      let m = 'Gagal memproses'; try { m = (await r.json()).error || m; } catch (_) {}
+      throw new Error(m);
+    }
+    it.result = await r.blob();
+    if (it.resultURL) URL.revokeObjectURL(it.resultURL);
+    it.resultURL = URL.createObjectURL(it.result);
+    it.preview = r.headers.get('X-Used-Preview') === '1';
+    it.status = 'done';
+  } catch (e) {
+    it.status = 'error'; it.error = e.message || 'Gagal memproses';
+  }
+  running--; render(); pump();
+}
+function pump() {
+  while (running < MAX_PARALLEL) {
+    const next = items.find(i => i.status === 'queue');
+    if (!next) break;
+    run(next);
+  }
+}
+
+/* ---------- Render ---------- */
+const grid = $('#grid'), bar = $('#statusbar');
+const bgStyle = () => S.bg === 'transparent' ? '' : `style="background:${esc(S.bg)};background-image:none"`;
+
+function render() {
+  const has = items.length > 0;
+  drop.hidden = has; grid.hidden = !has;
+  if (!has) { bar.innerHTML = ''; $('#crumb3').classList.remove('on'); return; }
+
+  grid.innerHTML = items.map(it => {
+    const src = it.resultURL || it.thumb;
+    const busy = it.status === 'queue' || it.status === 'processing';
+    const label = { queue: 'Antre', processing: 'Memproses', done: 'Selesai ✓', error: 'Gagal' }[it.status];
+    return `<div class="card ${it.status}" data-id="${it.id}">
+      <button class="x" data-act="remove" aria-label="Hapus foto">×</button>
+      <div class="thumb ${it.status === 'done' ? 'checker' : ''}" ${it.status === 'done' ? bgStyle() : ''}>
+        <img src="${src}" alt="${esc(it.name)}">
+        ${busy ? '<div class="ov"><div class="spin"></div></div>' : ''}
+        ${it.preview ? '<span class="badge">Resolusi hemat</span>' : ''}
+      </div>
+      <div class="meta"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="state ${it.status}">${label}</span></div>
+      ${it.status === 'error' ? `<div class="errtxt">${esc(it.error)}</div>` : ''}
+      ${it.status === 'done' ? '<div class="act"><button data-act="dl">Download</button></div>' : ''}
+      ${it.status === 'error' ? '<div class="act"><button data-act="retry">Coba lagi</button></div>' : ''}
+    </div>`;
+  }).join('') + `<button class="add" id="addBtn" aria-label="Tambah foto"><div><div class="plus">+</div><span>Tambah foto</span></div></button>`;
+
+  const total = items.length;
+  const done = items.filter(i => i.status === 'done').length;
+  const err = items.filter(i => i.status === 'error').length;
+  const pending = total - done - err;
+  const anyPreview = items.some(i => i.preview);
+
+  if (pending > 0) {
+    const pct = Math.round(((done + err) / total) * 100);
+    bar.innerHTML = `<div class="status"><div class="proc"><span>Menghapus background…</span><span>${done + err}/${total}</span></div><div class="prog"><i style="width:${pct}%"></i></div></div>`;
+    $('#crumb3').classList.remove('on');
+  } else {
+    $('#crumb3').classList.toggle('on', done > 0);
+    if (done > 0) {
+      bar.innerHTML = `<div class="status done">
+        <h3><span class="ok"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Selesai!</h3>
+        <p>${done} foto sudah bersih dari background${err ? ` · ${err} gagal` : ''}.${anyPreview ? ' Kredit remove.bg habis, jadi sebagian hasil beresolusi kecil.' : ''}</p>
+        <div class="row">
+          <button class="btn btn-primary" data-act="dlall"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>${done > 1 ? 'Download semua (ZIP)' : 'Download'}</button>
+          <button class="btn btn-ghost" data-act="clear">Mulai baru</button>
+        </div></div>`;
+    } else {
+      bar.innerHTML = `<div class="status"><p style="margin:0">Semua foto gagal diproses. Coba lagi atau cek pengaturan.</p></div>`;
+    }
+  }
+}
+
+grid.addEventListener('click', e => {
+  if (e.target.closest('#addBtn')) return fileInput.click();
+  const btn = e.target.closest('[data-act]'); if (!btn) return;
+  const card = btn.closest('.card'); const it = card && items.find(i => i.id == card.dataset.id);
+  if (!it) return;
+  if (btn.dataset.act === 'remove') {
+    if (it.status === 'processing') return toast('Tunggu proses foto ini selesai dulu');
+    URL.revokeObjectURL(it.thumb); if (it.resultURL) URL.revokeObjectURL(it.resultURL);
+    items.splice(items.indexOf(it), 1); render();
+  } else if (btn.dataset.act === 'dl') downloadOne(it);
+  else if (btn.dataset.act === 'retry') { it.status = 'queue'; render(); pump(); }
+});
+bar.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]'); if (!btn) return;
+  if (btn.dataset.act === 'dlall') downloadAll();
+  if (btn.dataset.act === 'clear') {
+    if (running) return toast('Tunggu proses selesai dulu');
+    items.forEach(i => { URL.revokeObjectURL(i.thumb); if (i.resultURL) URL.revokeObjectURL(i.resultURL); });
+    items.length = 0; render();
+  }
+});
+
+/* ---------- Download ---------- */
+async function composite(it) {
+  if (S.bg === 'transparent') return it.result;
+  const bmp = await createImageBitmap(it.result);
+  const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+  const x = c.getContext('2d'); x.fillStyle = S.bg; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0);
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+const baseName = n => (n.replace(/\.[^.]+$/, '') || 'foto').replace(/[\\/:*?"<>|]+/g, '_') + '-YamadaBG.png';
+function save(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function downloadOne(it) { try { save(await composite(it), baseName(it.name)); } catch (_) { toast('Gagal menyiapkan download'); } }
+
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = u8 => { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+function zip(files) { // tanpa kompresi (PNG sudah terkompres)
+  const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+  const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, time, true); lh.setUint16(12, date, true); lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nm, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, time, true); ch.setUint16(14, date, true); ch.setUint32(16, crc, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true); ch.setUint16(28, nm.length, true);
+    ch.setUint32(42, off, true);
+    cen.push(ch.buffer, nm);
+    off += 30 + nm.length + sz;
+  }
+  const cdSize = cen.reduce((a, b) => a + (b.byteLength ?? b.length), 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cdSize, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...cen, end.buffer], { type: 'application/zip' });
+}
+async function downloadAll() {
+  const ready = items.filter(i => i.status === 'done');
+  if (!ready.length) return;
+  if (ready.length === 1) return downloadOne(ready[0]);
+  try {
+    const used = new Set(), files = [];
+    for (const it of ready) {
+      let n = baseName(it.name), k = 2; while (used.has(n)) n = baseName(it.name).replace(/\.png$/, `-${k++}.png`);
+      used.add(n);
+      files.push({ name: n, data: new Uint8Array(await (await composite(it)).arrayBuffer()) });
+    }
+    save(zip(files), 'YamadaBG-hasil.zip');
+  } catch (_) { toast('Gagal membuat ZIP'); }
+}
+
+/* ---------- Foto contoh ---------- */
+$('#sampleBtn').addEventListener('click', () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 400 300">${scene(true)}</svg>`;
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'); c.width = 800; c.height = 600;
+    c.getContext('2d').drawImage(img, 0, 0, 800, 600);
+    c.toBlob(b => { show('upload'); addFiles([new File([b], 'foto-contoh.jpg', { type: 'image/jpeg' })]); }, 'image/jpeg', .92);
+  };
+  img.onerror = () => toast('Gagal memuat foto contoh');
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+});
+
+syncSettingsUI(); render();
+})();
+</script>
+</body>
+</html>
